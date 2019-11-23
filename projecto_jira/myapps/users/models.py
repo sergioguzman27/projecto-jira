@@ -1,3 +1,5 @@
+""" Modelos de Usuarios """
+
 # Django
 from django.db import models
 from django.contrib.auth.models import AbstractUser
@@ -28,11 +30,12 @@ class User(ModelBase, AbstractUser):
         validators=[phone_regex]
     )
     
+    is_admin = models.BooleanField('tipo de usuario',default=False)
+    
     USERNAME_FIELD = 'email'
     
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
     
-    is_admin = models.BooleanField('tipo de usuario',default=False)
     
     def __str__(self):
         return self.username
