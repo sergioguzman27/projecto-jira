@@ -44,6 +44,7 @@ THIRD_PARTY_APPS = [
     'django_filters',
 ]
 LOCAL_APPS = [
+    'myapps.users.apps.UsersConfig',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -58,7 +59,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'projecto_jira.urls'
+ROOT_URLCONF = 'jira.urls'
 
 TEMPLATES = [
     {
@@ -76,7 +77,10 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'projecto_jira.wsgi.application'
+# Configuracion del modelo User del admin
+AUTH_USER_MODEL = 'users.User'
+
+WSGI_APPLICATION = 'jira.wsgi.application'
 
 
 # Database
