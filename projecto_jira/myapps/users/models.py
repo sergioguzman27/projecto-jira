@@ -7,7 +7,6 @@ from django.core.validators import RegexValidator
 
 # Modelo Base
 from myapps.utils.models import ModelBase
-# Create your models here.
 
 class User(ModelBase, AbstractUser):
     
@@ -36,6 +35,8 @@ class User(ModelBase, AbstractUser):
     
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
     
+    class Meta:
+        ordering = ['pk']
     
     def __str__(self):
         return self.username
