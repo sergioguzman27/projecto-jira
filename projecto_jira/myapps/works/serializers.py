@@ -101,6 +101,13 @@ class UpdateStateWorkSerializer(serializers.ModelSerializer):
         model = Work
         fields = ['state']
         
+    def validate(self, data):
+        state = data['state']
+        if state in ['1','2','3']:
+            print('Entro a la validacion del state')
+            return data
+        raise serializers.ValidationError('El estado solo puede ser 1, 2 o 3')
+        
     def update(self, instance, data):
         work = self.context['work']
         work.state = data['state']
