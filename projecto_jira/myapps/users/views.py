@@ -12,6 +12,7 @@ from myapps.users.permissions import IsUserAdmin, DeletePermission, IsAccountOwn
 
 # Modelos
 from myapps.users.models import User
+from myapps.works.models import Work
 
 # Serializers
 from myapps.users.serializers import (CreateUserSerializer, UserModelSerializer,
@@ -63,6 +64,9 @@ class UserViewSet(viewsets.ModelViewSet):
     
     def destroy(self, request, *args, **kwargs):
         user = self.get_object()
+        works = Work.objects.filter(responsible=user)
+        if works.count() > 0:
+            return Response({'menssage_error': 'El usuario tiene tareas asignadas'}, status=status.HTTP_406_NOT_ACCEPTABLE)
         user.is_active = False
         user.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
