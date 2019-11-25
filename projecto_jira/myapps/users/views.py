@@ -79,6 +79,16 @@ class UserViewSet(viewsets.ModelViewSet):
         }
         return Response(data, status=status.HTTP_201_CREATED)
     
+    @action(detail=False, methods=['post'])
+    def logout(self, request):
+        try:
+            request.user.auth_token.delete()
+        except (ObjectDoesNotExist):
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        return Response({"success": "Successfully logged out."},
+                    status=status.HTTP_200_OK)
+    
     @action(detail=False, methods=['put'])
     def permission(self, request):
         """ Vista para cambiar de tipo a un usuario """
