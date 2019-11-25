@@ -62,6 +62,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
 class UpdateUserSerializer(serializers.ModelSerializer):
     
     username = serializers.CharField(
+        required=False,
         min_length=4,
         max_length=20,
         validators = [
@@ -79,7 +80,7 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         validators=[phone_regex]
     )
     
-    password = serializers.CharField(min_length=8, max_length=64)
+    password = serializers.CharField(required=False,min_length=8, max_length=64)
     first_name = serializers.CharField(min_length=2,max_length=30)
     last_name = serializers.CharField(min_length=2,max_length=30)
     
