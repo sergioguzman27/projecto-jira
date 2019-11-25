@@ -9,19 +9,13 @@ from myapps.users.models import User
 class IsUserAdmin(BasePermission):
     """ Permiso que verifica si el usuario es admin """
     def has_permission(self, request, view):
-        print('Entro')
-        print(request)
         user = request.user
-        print(user.is_admin)
         if user.is_admin == True:
             return True
         return False
 
     def has_object_permission(self, request, view, obj):
-        print('Entro')
-        print(request)
         user = request.user
-        print(user.is_admin)
         if user.is_admin == True:
             return True
         return False
