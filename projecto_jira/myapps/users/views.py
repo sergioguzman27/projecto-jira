@@ -18,8 +18,15 @@ from myapps.users.serializers import (CreateUserSerializer, UserModelSerializer,
                                       UserLoginSerializer, UpdateUserSerializer,
                                       PermissionUserSerializer)
 
+# Filtros
+from django_filters.rest_framework import DjangoFilterBackend
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.filter(is_active=True)
+    
+    # Filtros
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('is_admin',)
     
     def get_permissions(self):
         permissions= []
