@@ -19,9 +19,17 @@ from myapps.works.models import Work
 from myapps.works.serializers import (WorkModelSerializer, CreateWorkSerializer,
                                       AssignmentUserSerializer, UpdateStateWorkSerializer)
 
+# Filtros
+from rest_framework.filters import SearchFilter, OrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+
 class WorkViewSet(viewsets.ModelViewSet):
     
     queryset = Work.objects.filter(is_active=True)
+    
+    # Filtros
+    filter_backends = (DjangoFilterBackend,)
+    filter_fields = ('state','is_active')
     
     def get_permissions(self):
         permissions= [IsAuthenticated]
@@ -31,6 +39,8 @@ class WorkViewSet(viewsets.ModelViewSet):
             permissions.append(IsCreatorWork)
         if self.action == 'state':
             permissions.append(IsResponsibleWork)
+        if self.action in ['created','destroy']:
+            permissions.append(IsCreatorWork)
         return [p() for p in permissions]
     
     def get_serializer_class(self):
@@ -74,7 +84,6 @@ class WorkViewSet(viewsets.ModelViewSet):
         user = request.user
         if user.is_admin == True:
             queryset = Work.objects.filter(
-                admin=user,
                 is_active=True
             )
         else:
@@ -82,8 +91,15 @@ class WorkViewSet(viewsets.ModelViewSet):
                 responsible=user,
                 is_active=True
             )
+        query = self.filter_queryset(queryset)
+        page = self.paginate_queryset(query)
         serializer_class = self.get_serializer_class()
-        serializer = serializer_class(queryset, many=True)
+        
+        if page is not None:
+            serializer = serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = serializer_class(query, many=True)
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
@@ -91,7 +107,6 @@ class WorkViewSet(viewsets.ModelViewSet):
         user = request.user
         if user.is_admin == True:
             queryset = Work.objects.filter(
-                admin=user,
                 is_active=True
             )
         else:
@@ -99,9 +114,33 @@ class WorkViewSet(viewsets.ModelViewSet):
                 responsible=user,
                 is_active=True
             )
-        user = get_object_or_404(queryset, pk=pk)
+        work = get_object_or_404(queryset, pk=pk)
         serializer_class = self.get_serializer_class()
-        serializer = serializer_class(user)
+        serializer = serializer_class(work)
+        return Response(serializer.data)
+    
+    def destroy(self, request, *args, **kwargs):
+        work = self.get_object()
+        work.is_active = False
+        work.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    @action(detail=False, methods=['get'])
+    def created(self, request, *args, **kwargs):
+        user = request.user
+        queryset = Work.objects.filter(
+            admin=user,
+            is_active=True
+        )
+        query = self.filter_queryset(queryset)
+        page = self.paginate_queryset(query)
+        serializer_class = self.get_serializer_class()
+        
+        if page is not None:
+            serializer = serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = serializer_class(query, many=True)
         return Response(serializer.data)
     
     @action(detail=True, methods=['post'])
