@@ -18,7 +18,7 @@ from myapps.works.models import Work
 from myapps.reports.serializers import WorksReportSerializer
 
 class ReportsViews(mixins.ListModelMixin,viewsets.GenericViewSet):
-    
+    """ Views para los reportes """
     def get_permissions(self):
         permissions= [IsAuthenticated]
         if self.action in ['advance','works']:
@@ -45,9 +45,10 @@ class ReportsViews(mixins.ListModelMixin,viewsets.GenericViewSet):
     
     @action(detail=False, methods=['get'])
     def works(self, request, *args, **kwargs):
-        to_do = Work.objects.filter(state='1').count()
-        doing = Work.objects.filter(state='2').count()
-        done = Work.objects.filter(state='3').count()
+        """ Obtiene el recuento de tareas creadas por un usuario admin """
+        to_do = Work.objects.filter(is_active=True, state='1').count()
+        doing = Work.objects.filter(is_active=True, state='2').count()
+        done = Work.objects.filter(is_active=True, state='3').count()
         
         data = {
             'to_do': to_do,
@@ -58,18 +59,21 @@ class ReportsViews(mixins.ListModelMixin,viewsets.GenericViewSet):
     
     @action(detail=False, methods=['get'])
     def advance(self, request, *args, **kwargs):
-        to_do = Work.objects.filter(state='1').count()
-        doing = Work.objects.filter(state='2').count()
-        done = Work.objects.filter(state='3').count()
+        """ Obtiene los porcentajes de avances del proyecto """
+        to_do = Work.objects.filter(is_active=True, state='1').count()
+        doing = Work.objects.filter(is_active=True, state='2').count()
+        done = Work.objects.filter(is_active=True, state='3').count()
         all_works = to_do + doing + done
         
         percent_to_do = round((to_do/all_works)*100,2)
         percent_doing = round((doing/all_works)*100,2)
         percent_done = round((done/all_works)*100,2)
+        advance = round((done/all_works)*100,2)
         
         data = {
             'to_do': percent_to_do,
             'doing': percent_doing,
-            'done': percent_done
+            'done': percent_done,
+            'advance_project': advance
         }
         return Response(data, status=status.HTTP_200_OK)

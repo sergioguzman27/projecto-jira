@@ -22,6 +22,7 @@ from myapps.users.serializers import (CreateUserSerializer, UserModelSerializer,
 from django_filters.rest_framework import DjangoFilterBackend
 
 class UserViewSet(viewsets.ModelViewSet):
+    """ Viewset para los metodos de los usuarios """
     queryset = User.objects.filter(is_active=True)
     
     # Filtros
@@ -68,7 +69,7 @@ class UserViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['post'])
     def login(self, request):
-        """ Vista para el Login """
+        """ Vista para el login, esta vista obtiene o crea el token """
         serializer_class = self.get_serializer_class()
         serializer = serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -78,6 +79,17 @@ class UserViewSet(viewsets.ModelViewSet):
             'access_token': token
         }
         return Response(data, status=status.HTTP_201_CREATED)
+    
+    @action(detail=False, methods=['post'])
+    def logout(self, request):
+        """ Vista para logout del usuario, esta vista destruye el token """
+        try:
+            request.user.auth_token.delete()
+        except (ObjectDoesNotExist):
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        
+        return Response({"success": "Successfully logged out."},
+                    status=status.HTTP_200_OK)
     
     @action(detail=False, methods=['put'])
     def permission(self, request):

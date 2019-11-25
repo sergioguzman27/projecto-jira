@@ -24,23 +24,22 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
 class WorkViewSet(viewsets.ModelViewSet):
+    """ Views para los metodos de tareas """
     
     queryset = Work.objects.filter(is_active=True)
     
     # Filtros
     filter_backends = (DjangoFilterBackend,)
-    filter_fields = ('state','is_active')
+    filter_fields = ('state','responsible')
     
     def get_permissions(self):
         permissions= [IsAuthenticated]
-        if self.action in ['create','destroy']:
+        if self.action in ['create','created','unassigned','assigned']:
             permissions.append(IsUserAdmin)
-        if self.action in ['update','partial_update','assignment']:
+        if self.action in ['update','partial_update','assignment','destroy']:
             permissions.append(IsCreatorWork)
         if self.action == 'state':
             permissions.append(IsResponsibleWork)
-        if self.action in ['created','destroy']:
-            permissions.append(IsCreatorWork)
         return [p() for p in permissions]
     
     def get_serializer_class(self):
@@ -103,7 +102,6 @@ class WorkViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
-        # Usar getobjector404
         user = request.user
         if user.is_admin == True:
             queryset = Work.objects.filter(
@@ -127,9 +125,50 @@ class WorkViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def created(self, request, *args, **kwargs):
+        """ Lista todas las tareas que fueron creadas por el usuario """
         user = request.user
         queryset = Work.objects.filter(
             admin=user,
+            is_active=True
+        )
+        query = self.filter_queryset(queryset)
+        page = self.paginate_queryset(query)
+        serializer_class = self.get_serializer_class()
+        
+        if page is not None:
+            serializer = serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = serializer_class(query, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def unassigned(self, request, *args, **kwargs):
+        """ Vista para listar las tareas no asignadas a un usuairo que las creo """
+        user = request.user
+        queryset = Work.objects.filter(
+            admin=user,
+            responsible__isnull=True,
+            is_active=True
+        )
+        query = self.filter_queryset(queryset)
+        page = self.paginate_queryset(query)
+        serializer_class = self.get_serializer_class()
+        
+        if page is not None:
+            serializer = serializer_class(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = serializer_class(query, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def assigned(self, request, *args, **kwargs):
+        """ Vista para listar las tareas asignadas a un usuairo que las creo """
+        user = request.user
+        queryset = Work.objects.filter(
+            admin=user,
+            responsible__isnull=False,
             is_active=True
         )
         query = self.filter_queryset(queryset)
