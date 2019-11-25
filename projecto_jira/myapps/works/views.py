@@ -24,6 +24,7 @@ from rest_framework.filters import SearchFilter, OrderingFilter
 from django_filters.rest_framework import DjangoFilterBackend
 
 class WorkViewSet(viewsets.ModelViewSet):
+    """ Views para los metodos de tareas """
     
     queryset = Work.objects.filter(is_active=True)
     
@@ -101,7 +102,6 @@ class WorkViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     def retrieve(self, request, pk=None):
-        # Usar getobjector404
         user = request.user
         if user.is_admin == True:
             queryset = Work.objects.filter(
@@ -125,6 +125,7 @@ class WorkViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['get'])
     def created(self, request, *args, **kwargs):
+        """ Lista todas las tareas que fueron creadas por el usuario """
         user = request.user
         queryset = Work.objects.filter(
             admin=user,
