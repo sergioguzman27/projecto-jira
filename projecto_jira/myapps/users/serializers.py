@@ -60,7 +60,7 @@ class CreateUserSerializer(serializers.ModelSerializer):
         return user
 
 class UpdateUserSerializer(serializers.ModelSerializer):
-    
+    """ Serializer para editar la informacion del usuario """
     username = serializers.CharField(
         required=False,
         min_length=4,
@@ -111,6 +111,7 @@ class UserModelSerializer(serializers.ModelSerializer):
         )
 
 class UserLoginSerializer(serializers.Serializer):
+    """ Serializer para realizar el logeo del usuario """
     email = serializers.EmailField()
     password = serializers.CharField(min_length=8, max_length=64)
     
@@ -126,6 +127,7 @@ class UserLoginSerializer(serializers.Serializer):
         return self.context['user'], token.key
 
 class PermissionUserSerializer(serializers.Serializer):
+    """ Serializer para cambiar el tipo de usuario (admin o usuario normal) """
     id_user = serializers.IntegerField()
     is_admin = serializers.BooleanField()
     

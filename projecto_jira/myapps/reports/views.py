@@ -18,7 +18,7 @@ from myapps.works.models import Work
 from myapps.reports.serializers import WorksReportSerializer
 
 class ReportsViews(mixins.ListModelMixin,viewsets.GenericViewSet):
-    
+    """ Views para los reportes """
     def get_permissions(self):
         permissions= [IsAuthenticated]
         if self.action in ['advance','works']:
@@ -45,6 +45,7 @@ class ReportsViews(mixins.ListModelMixin,viewsets.GenericViewSet):
     
     @action(detail=False, methods=['get'])
     def works(self, request, *args, **kwargs):
+        """ Obtiene el recuento de tareas creadas por un usuario admin """
         to_do = Work.objects.filter(is_active=True, state='1').count()
         doing = Work.objects.filter(is_active=True, state='2').count()
         done = Work.objects.filter(is_active=True, state='3').count()
@@ -58,6 +59,7 @@ class ReportsViews(mixins.ListModelMixin,viewsets.GenericViewSet):
     
     @action(detail=False, methods=['get'])
     def advance(self, request, *args, **kwargs):
+        """ Obtiene los porcentajes de avances del proyecto """
         to_do = Work.objects.filter(is_active=True, state='1').count()
         doing = Work.objects.filter(is_active=True, state='2').count()
         done = Work.objects.filter(is_active=True, state='3').count()
