@@ -2,4 +2,5 @@ from django.apps import AppConfig
 
 
 class WorksConfig(AppConfig):
-    name = 'works'
+    name = 'myapps.works'
+    verbose_name = 'Works'

@@ -4,6 +4,7 @@
 from rest_framework import status, viewsets, mixins
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.generics import get_object_or_404
 
 # Permisos
 from rest_framework.permissions import IsAuthenticated
@@ -74,10 +75,8 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['put'])
     def permission(self, request):
         """ Vista para cambiar de tipo a un usuario """
-        try:
-            user = User.objects.get(pk=request.data['id_user'])
-        except:
-            return Response({'Errors':'No existe un usuario con ese id'}, status=status.HTTP_400_BAD_REQUEST)
+        queryset = User.objects.all()
+        user = get_object_or_404(queryset,pk=request.data['id_user'])
         serializer_class = self.get_serializer_class()
         serializer = serializer_class(
             user,
